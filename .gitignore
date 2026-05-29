@@ -5,7 +5,7 @@
 __pycache__/
 venv/
 
-backend/best_unet_efficientnet_b4-2/
+backend/best_unet_efficientnet*/
 
 backend/uploads/
 
