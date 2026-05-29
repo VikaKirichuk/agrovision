@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>АгроВізія — Аналіз полів</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Nunito:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-logo" onclick="goHome()">
+    <div class="nav-logo-icon">🌾</div>
+    <span class="nav-logo-text">AgroVision</span>
+  </a>
+  <div class="nav-links">
+    <button class="nav-btn active" id="btn-about" onclick="showPage('home')">Про нас</button>
+    <button class="nav-btn" id="btn-history" onclick="requireAuth('history')">Історія полів</button>
+    <button class="nav-btn primary" id="btn-auth" onclick="openAuth()">Авторизація / Реєстрація</button>
+  </div>
+</nav>
+
+<!-- ══ PAGE: HOME ══ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Розумний аналіз<br><span>сільськогосподарських угідь</span></h1>
+      <p>Завантажте аерофото або супутниковий знімок поля — ШІ-модель виявить 8 типів аномалій і надасть агрономічні рекомендації за секунди.</p>
+      <div class="hero-text-placeholder">
+        1. Завантажте&nbsp; фото&nbsp;<br>
+        2. Модель&nbsp; покаже результат аномалій, як побороти цю проблему<br>
+      </div>
+    </div>
+    <div class="hero-img">
+      <img src="image/image 2.png" alt="hero image">
+    </div>
+  </div>
+
+  <div class="about-section">
+    <div class="about-inner">
+      <h2>Про платформу</h2>
+      <div class="about-grid">
+        <div class="about-card">
+          <div class="icon">🤖</div>
+          <h3>SegFormer</h3>
+          <p>Глибока нейромережа навчена на датасеті Agriculture-Vision для виявлення аномалій з точністю понад 85%.</p>
+        </div>
+        <div class="about-card">
+          <div class="icon">🗺️</div>
+          <h3>8 класів аномалій</h3>
+          <p>Від бур'янів і подвійного посіву до пошкоджень бурею і застою води — модель покриває широкий спектр проблем.</p>
+        </div>
+        <div class="about-card">
+          <div class="icon">💡</div>
+          <h3>Агрономічні поради</h3>
+          <p>До кожної виявленої проблеми система додає конкретну практичну рекомендацію для агронома.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE: ANALYSIS ══ -->
+<div class="page" id="page-analysis">
+  <div class="analysis-wrap">
+    <h1>🌾 Аналіз сільськогосподарського поля</h1>
+    <p class="model-tag">Модель: <span>SegFormer</span> · Agriculture-Vision · 8 класів аномалій</p>
+
+    <div class="analysis-grid">
+      <!-- LEFT: upload + controls -->
+      <div>
+        <div class="panel">
+          <div class="panel-header">📤 Фото поля (з дрона або супутника)</div>
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+            <input type="file" accept="image/*" id="file-input" onchange="previewFile(event)" style="display:none;">
+            <div class="upload-icon">⬆️</div>
+            <div class="upload-text">
+              <strong>Перетягніть зображення сюди</strong><br>
+              або натисніть, щоб завантажити
+            </div>
+            <img id="preview-img" src="" alt="preview" style="display:none;">
+          </div>
+        </div>
+
+        <div class="controls" style="background:var(--surface);border:1px solid var(--border);border-radius:0 0 16px 16px;margin-top:-1px;">
+          <div class="slider-label">
+            🎚️ Поріг чутливості
+            <span id="threshold-val">0.40</span>
+          </div>
+          <input type="range" min="0.2" max="0.8" step="0.05" value="0.4" id="threshold-slider"
+            oninput="document.getElementById('threshold-val').textContent=parseFloat(this.value).toFixed(2)">
+          <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text3);margin-top:.3rem;">
+            <span>0.2 — чутливіше</span><span>0.8 — точніше</span>
+          </div>
+        </div>
+
+        <button class="btn-analyze" id="btn-analyze" onclick="analyzeField()" disabled>
+          🔍 Аналізувати поле
+        </button>
+      </div>
+
+      <!-- RIGHT: result -->
+      <div>
+        <div class="panel">
+          <div class="panel-header">🗺️ Карта аномалій</div>
+          <div class="result-zone" id="result-zone">
+            <div class="result-placeholder">
+              📷 Завантажте фото і натисніть<br><strong style="color:var(--green2)">Аналізувати поле</strong>
+            </div>
+            <img id="result-img" src="" alt="result">
+          </div>
+        </div>
+
+        <div class="report-panel" id="report-panel" style="margin-top:1.5rem;">
+          <div class="report-placeholder">Результати аналізу з'являться тут після обробки знімку.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend-bar" id="legend-bar"></div>
+
+    
+  </div>
+</div>
+
+<!-- ══ PAGE: HISTORY ══ -->
+<div class="page" id="page-history">
+  <div class="history-wrap">
+    <h1>📁 Історія аналізів</h1>
+    <div id="history-content">
+      <div class="history-empty">
+        <div class="icon">📂</div>
+        <p style="color:var(--text2);margin-bottom:.5rem;">Аналізи ще не виконувались</p>
+        <p style="font-size:.85rem;">Після першого аналізу поля тут з'являться збережені результати.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ AUTH MODAL ══ -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuth()">✕</button>
+    <h2>Ласкаво просимо</h2>
+    <p class="modal-sub">Увійдіть або зареєструйтесь для доступу до аналізу полів</p>
+
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Вхід</button>
+      <button class="tab-btn" id="tab-reg" onclick="switchTab('register')">Реєстрація</button>
+    </div>
+
+    <!-- ── LOGIN FORM ── -->
+    <div id="form-login">
+      <div class="form-group">
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input type="email" placeholder="Електронна пошта" id="login-email" autocomplete="email"
+            oninput="clearFieldError('login-email')">
+        </div>
+        <span class="field-error" id="err-login-email"></span>
+      </div>
+
+      <div class="form-group">
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" placeholder="Пароль" id="login-pass" autocomplete="current-password"
+            oninput="clearFieldError('login-pass')" onkeydown="if(event.key==='Enter') doLogin()">
+          <button type="button" class="eye-btn" onclick="togglePass('login-pass', this)">👁</button>
+        </div>
+        <span class="field-error" id="err-login-pass"></span>
+      </div>
+
+      <button class="btn-primary" id="btn-login" onclick="doLogin()">Увійти</button>
+    </div>
+
+    <!-- ── REGISTER FORM ── -->
+    <div id="form-register" style="display:none;">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="field-label">Ім'я <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" placeholder="Іван Петренко" id="reg-name" autocomplete="name"
+              oninput="clearFieldError('reg-name')">
+          </div>
+          <span class="field-error" id="err-reg-name"></span>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">Компанія / Господарство</label>
+          <div class="input-wrap">
+            <span class="input-icon">🏢</span>
+            <input type="text" placeholder="ФГ «Агро»" id="reg-company" autocomplete="organization">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="field-label">Електронна пошта <span class="req">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input type="email" placeholder="example@gmail.com" id="reg-email" autocomplete="email"
+            oninput="validateEmailField('reg-email', 'err-reg-email')">
+        </div>
+        <span class="field-error" id="err-reg-email"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="field-label">Номер телефону</label>
+        <div class="input-wrap">
+          <span class="input-icon">📞</span>
+          <input type="tel" placeholder="+380 68 123 45 67" id="reg-phone" autocomplete="tel"
+            oninput="validatePhoneField('reg-phone', 'err-reg-phone')"
+            onkeypress="return /[\d\s\+\-\(\)]/.test(event.key)">
+        </div>
+        <span class="field-error" id="err-reg-phone"></span>
+        <span class="field-hint">Формат: +380XXXXXXXXX або 0XXXXXXXXX</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="field-label">Пароль <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" placeholder="Мін. 6 символів" id="reg-pass" autocomplete="new-password"
+              oninput="validatePassField()">
+            <button type="button" class="eye-btn" onclick="togglePass('reg-pass', this)">👁</button>
+          </div>
+          <span class="field-error" id="err-reg-pass"></span>
+          <!-- strength bar -->
+          <div class="pass-strength" id="pass-strength" style="display:none;">
+            <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+            <span class="strength-label" id="strength-label"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="field-label">Підтвердити пароль <span class="req">*</span></label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" placeholder="Повторіть пароль" id="reg-pass2" autocomplete="new-password"
+              oninput="validatePass2Field()">
+            <button type="button" class="eye-btn" onclick="togglePass('reg-pass2', this)">👁</button>
+          </div>
+          <span class="field-error" id="err-reg-pass2"></span>
+        </div>
+      </div>
+
+      <label class="checkbox-row">
+        <input type="checkbox" id="reg-agree">
+        <span>Я ознайомився з правилами компанії і готовий дотримуватись їх</span>
+      </label>
+
+      <button class="btn-primary" id="btn-register" onclick="doRegister()">Зареєструватися</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="left">
+    <a onclick="showPage('home')">Про нас</a>
+    <a onclick="requireAuth('history')">Авторизація / Реєстрація</a>
+  </div>
+  <div class="right">+380680605420</div>
+</footer>
+<!-- ══ PAGE: ADMIN ══ -->
+<div class="page" id="page-admin">
+  <div class="admin-wrap">
+    <h1>🛡️ Адмін-панель</h1>
+
+    <div class="tab-row" style="max-width:400px;margin-bottom:1.5rem;">
+      <button class="tab-btn active" id="atab-users"    onclick="switchAdminTab('users')">👥 Користувачі</button>
+      <button class="tab-btn"        id="atab-analyses" onclick="switchAdminTab('analyses')">📊 Аналізи</button>
+    </div>
+
+    <div id="admin-users-section">
+      <div class="admin-toolbar">
+        <button class="adm-btn refresh" onclick="loadAdminUsers()">🔄 Оновити</button>
+      </div>
+      <div id="admin-users-list" class="admin-list-wrap"></div>
+    </div>
+
+    <div id="admin-analyses-section" style="display:none;">
+      <div class="admin-toolbar">
+        <button class="adm-btn refresh" onclick="loadAdminAnalyses()">🔄 Оновити</button>
+      </div>
+      <div id="admin-analyses-list" class="admin-list-wrap"></div>
+    </div>
+  </div>
+</div>
+<!-- Вставити перед закриваючим </body> тегом, після auth-modal -->
+
+<!-- ══ LOGOUT CONFIRM MODAL ══ -->
+<div class="modal-overlay" id="logout-modal">
+  <div class="modal" style="max-width:380px;text-align:center;">
+    <div style="font-size:2.5rem;margin-bottom:1rem;">🚪</div>
+    <h2 style="margin-bottom:.5rem;">Вийти з акаунту?</h2>
+    <p class="modal-sub" style="margin-bottom:1.75rem;">Ви впевнені, що хочете завершити сесію?</p>
+    <div style="display:flex;gap:.75rem;">
+      <button class="btn-cancel-logout" onclick="closeLogoutModal()">Скасувати</button>
+      <button class="btn-confirm-logout" onclick="confirmLogout()">Так, вийти</button>
+    </div>
+  </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

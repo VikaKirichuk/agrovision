@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+
+__pycache__/
+venv/
+
+best_unet_efficientnet*/
+
+backend/uploads/
+
+.pytest_cache/
+coverage_html/
+.coverage
