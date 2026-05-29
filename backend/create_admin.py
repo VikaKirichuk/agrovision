@@ -8,8 +8,8 @@ from auth import get_password_hash
 
 models.Base.metadata.create_all(bind=engine)
 
-EMAIL    = "admin@agrovision.com"   # ← змініть
-PASSWORD = "Admin1234!"             # ← змініть
+EMAIL    = "admin@agrovision.com"   
+PASSWORD = "Admin1234!"             
 NAME     = "Адміністратор"
 
 db = SessionLocal()

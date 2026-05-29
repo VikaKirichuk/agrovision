@@ -9,8 +9,7 @@ load_dotenv()
 AWS_REGION      = os.getenv("AWS_REGION", "eu-central-1")
 S3_BUCKET       = os.getenv("S3_BUCKET", "agrovision-uploads")
 
-# boto3 бере AWS_ACCESS_KEY_ID та AWS_SECRET_ACCESS_KEY з оточення автоматично
-# На EC2 можна взагалі не вказувати ключі — використовується IAM Role
+
 s3 = boto3.client("s3", region_name=AWS_REGION)
 
 

@@ -6,7 +6,7 @@ import os
 
 load_dotenv()
 
-# Береться з .env або змінних середовища EC2
+
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql+psycopg2://agrovision:agrovision@localhost:5432/agrovision"
